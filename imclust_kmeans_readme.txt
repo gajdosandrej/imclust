@@ -1,6 +1,6 @@
 
 imclust.py (c) R.Jaksa 2021 
-imclust_kmeans.py - edited version of imclust.py (by A. Gajdos) 
+imclust_kmeans.py - modified version of imclust.py (by A. Gajdos) 
 
 INPUTS: 
 -m  Model of NN to provide a numerical representation of images. Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'; 

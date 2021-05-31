@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_kmeans.py - edited version of imclust.py (by A. Gajdos)   
+# imclust_kmeans.py - modified version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -25,7 +25,7 @@ OPTIONS
 
 VERSION
     imclust.py 0.1 (c) R.Jaksa 2021
-    imclust_kmeans.py - edited version of imclust.py (by A. Gajdos) 
+    imclust_kmeans.py - modified version of imclust.py (by A. Gajdos) 
 """
 
 import argparse
