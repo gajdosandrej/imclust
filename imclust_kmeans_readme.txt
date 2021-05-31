@@ -7,5 +7,8 @@ INPUTS:
 -c  Requested number of clusters; 
 path to images. 
 
+OUTPUTS: 
+html file for each clustering with given number of clusters. 
+
 EXAMPLE: 
 python imclust_kmeans.py -c 5,10 -m VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\
