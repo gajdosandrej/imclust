@@ -173,7 +173,96 @@ for i in range(len(CLUSTERS)):
 #   if not os.path.exists(f"output/cluster{cluster[i]}"): os.makedirs(f"output/cluster{cluster[i]}")
 #   print(f"cp {path[i]} output/cluster{cluster[i]}")
 #   shutil.copy2(f"{path[i]}",f"output/cluster{cluster[i]}")
-  
+
+# -------------------------------------------------------------------------- mean silhouette coefficient (plot + file)
+from sklearn.metrics import silhouette_score
+import pandas as pd 
+import matplotlib.pyplot as plt 
+
+MSC = []
+for j in range(len(CLUSTERS)): 
+    MSC.append(silhouette_score(vectors,clusterings[j]))
+    
+frame = pd.DataFrame({'Cluster':CLUSTERS, 'MSC':MSC})
+plt.figure(figsize=(12,6))
+plt.plot(frame['Cluster'], frame['MSC'], marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('MSC')
+plt.title('Mean Silhouette Coefficient (MSC)')
+plt.savefig('MSC_kmeans.png')
+
+frame.to_csv(r'MSC_kmeans.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- Calinski-Harabasz index (plot + file)
+from sklearn.metrics import calinski_harabasz_score 
+
+CHS = []
+for j in range(len(CLUSTERS)): 
+    CHS.append(calinski_harabasz_score(vectors,clusterings[j]))
+    
+frame = pd.DataFrame({'Cluster':CLUSTERS, 'CHS':CHS})
+plt.figure(figsize=(12,6))
+plt.plot(frame['Cluster'], frame['CHS'], marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('CHS')
+plt.title('Calinski-Harabasz Score (CHS)')
+plt.savefig('CHS_kmeans.png')
+
+frame.to_csv(r'CHS_kmeans.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
+from sklearn.metrics import davies_bouldin_score 
+
+DBS = []
+for j in range(len(CLUSTERS)): 
+    DBS.append(davies_bouldin_score(vectors,clusterings[j]))
+    
+frame = pd.DataFrame({'Cluster':CLUSTERS, 'DBS':DBS})
+plt.figure(figsize=(12,6))
+plt.plot(frame['Cluster'], frame['DBS'], marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('DBS')
+plt.title('Davies-Bouldin Score (DBS)')
+plt.savefig('DBS_kmeans.png')
+
+frame.to_csv(r'DBS_kmeans.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- The COP index (plot + file) 
+from sklearn.metrics import pairwise_distances 
+from validclust import cop
+
+COP = [] 
+dist = pairwise_distances(vectors)
+for j in range(len(CLUSTERS)): 
+    COP.append(cop(vectors, dist, clusterings[j]))
+    
+frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP})
+plt.figure(figsize=(12,6))
+plt.plot(frame['Cluster'], frame['COP'], marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('COP')
+plt.title('The COP index')
+plt.savefig('COP_kmeans.png')
+
+frame.to_csv(r'COP_kmeans.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- The SDbw index (plot + file)
+from s_dbw import S_Dbw
+
+SDbw = [] 
+for j in range(len(CLUSTERS)): 
+    SDbw.append(S_Dbw(vectors, clusterings[j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
+    
+frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw})
+plt.figure(figsize=(12,6))
+plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('SDbw')
+plt.title('The SDbw index')
+plt.savefig('SDbw_kmeans.png')
+
+frame.to_csv(r'SDbw_kmeans.txt', index=None, sep='\t', mode='a')
+
 # -------------------------------------------------------------------------- make html
 from web import *
 
