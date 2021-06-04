@@ -8,6 +8,8 @@ div {
 div.box {
   vertical-align: middle;
   position: relative; }
+h1 {
+  color: blue; }
 h2 {
   color: white; }
 """
@@ -24,6 +26,7 @@ HTML="""<!DOCTYPE html>
 </style>
 </head>
 <body>
+{Nazov}
 {BODY}
 <br><br><br><br>
 </body>
