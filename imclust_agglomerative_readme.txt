@@ -1,6 +1,6 @@
 
 imclust.py (c) R.Jaksa 2021 
-imclust_kmeans.py - extended version of imclust.py (by A. Gajdos) 
+imclust_agglomerative.py - extended version of imclust.py (by A. Gajdos) 
 
 INPUTS: 
 -m  Models of NN to provide a numerical representations of images. Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'; 
@@ -16,4 +16,4 @@ OUTPUTS:
 - The SDbw index (plot, exported values in text file).      
 
 EXAMPLE: 
-python imclust_kmeans.py -c 5,10,15 -m DenseNet121,InceptionV3,ResNet50,VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\
+python imclust_agglomerative.py -c 5,10,15 -m DenseNet121,InceptionV3,ResNet50,VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\

@@ -1,6 +1,6 @@
 
 imclust.py (c) R.Jaksa 2021 
-imclust_dbscan.py - modified version of imclust.py (by A. Gajdos) 
+imclust_dbscan.py - extended version of imclust.py (by A. Gajdos) 
 
 INPUTS: 
 -m  Models of NN to provide a numerical representations of images. Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'; 

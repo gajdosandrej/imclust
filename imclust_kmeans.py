@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_kmeans.py - modified version of imclust.py (by A. Gajdos)   
+# imclust_kmeans.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -8,10 +8,10 @@ import sys,os
 
 HELP = f"""
 NAME
-    imclust.py - image clustering demo
+    imclust_kmeans.py - image clustering demo
 
 USAGE
-    imclust.py [OPTIONS] DIRECTORY...
+    imclust_kmeans.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
     Image clusteuring demo imclust.py will cluster images in
@@ -25,7 +25,7 @@ OPTIONS
 
 VERSION
     imclust.py 0.1 (c) R.Jaksa 2021
-    imclust_kmeans.py - modified version of imclust.py (by A. Gajdos) 
+    imclust_kmeans.py - extended version of imclust.py (by A. Gajdos) 
 """
 
 import argparse
@@ -359,7 +359,7 @@ for i in range(len(models)):
             section[clusterings[i][j][k]] += addimg(f"{path[k]}",f"cluster {clusterings[i][j][k]}",f"{path[k]}")
 
         # build the page
-        Nazov = f"<h1>model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
+        Nazov = f"<h1>algorithm: K-means, model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
         BODY = ""
         for k in range(len(section)):
             BODY += f"<h2>cluster {k}<h2>\n"

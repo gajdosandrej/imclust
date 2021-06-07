@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_dbscan.py - extended version of imclust.py (by A. Gajdos)   
+# imclust_spectral.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -8,10 +8,10 @@ import sys,os
 
 HELP = f"""
 NAME
-    imclust_dbscan.py - image clustering demo
+    imclust_spectral.py - image clustering demo
 
 USAGE
-    imclust_dbscan.py [OPTIONS] DIRECTORY...
+    imclust_spectral.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
     Image clusteuring demo imclust.py will cluster images in
@@ -21,17 +21,18 @@ OPTIONS
     -h  This help. 
     -m  Models of NN to provide a numerical representations of images. 
     Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'. 
-    -e  The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+    -c  Requested number of clusters.
 
 VERSION
     imclust.py 0.1 (c) R.Jaksa 2021
-    imclust_dbscan.py - extended version of imclust.py (by A. Gajdos) 
+    imclust_spectral.py - extended version of imclust.py (by A. Gajdos) 
 """
 
 import argparse
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("-h","--help",action="store_true")
-parser.add_argument("-e","--eps",type=str,default="0.5")
+# parser.add_argument("-c","--clusters",type=int,default=10)
+parser.add_argument("-c","--clusters",type=str,default="10")
 parser.add_argument("-m","--models",type=str,default="ResNet50")
 parser.add_argument("path",type=str,nargs='*') 
 args = parser.parse_args()
@@ -223,18 +224,17 @@ while i < len(path):
     i += 256
 
 # ----------------------------------------------------------------------- cluster them
-from sklearn.cluster import DBSCAN 
+from sklearn.cluster import SpectralClustering
 
-eps = args.eps
-eps = eps.split(",")
+CLUSTERS = args.clusters 
+CLUSTERS = CLUSTERS.split(",")
 clusterings = []
  
 for i in range(len(models)): 
     clusterings.append([])
-    for j in range(len(eps)): 
-        clustering = DBSCAN(eps=float(eps[j]))
+    for j in range(len(CLUSTERS)): 
+        clustering = SpectralClustering(n_clusters=int(float(CLUSTERS[j])))
         # clustering.fit(vectors[i])
-        # cl = clustering.predict(vectors[i])
         cl = clustering.fit_predict(vectors[i])
         clusterings[i].append(cl)
         print(f"clusters: {cl}")
@@ -257,18 +257,18 @@ import matplotlib.pyplot as plt
 MSC = []
 for i in range(len(models)): 
     MSC.append([])
-    for j in range(len(eps)): 
+    for j in range(len(CLUSTERS)): 
         MSC[i].append(silhouette_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'eps':eps, 'MSC':MSC[i]})
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'MSC':MSC[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['eps'], frame['MSC'], marker='o')
-    plt.xlabel('Epsilon')
+    plt.plot(frame['Cluster'], frame['MSC'], marker='o')
+    plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
     plt.title('Mean Silhouette Coefficient (MSC) - ' + models_names[i])
-    plt.savefig('MSC_' + models_names[i] + '_dbscan.png')
+    plt.savefig('MSC_' + models_names[i] + '_spectral.png')
 
-    frame.to_csv(r'MSC_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'MSC_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Calinski-Harabasz index (plot + file)
 from sklearn.metrics import calinski_harabasz_score 
@@ -276,18 +276,18 @@ from sklearn.metrics import calinski_harabasz_score
 CHS = []
 for i in range(len(models)): 
     CHS.append([])
-    for j in range(len(eps)): 
+    for j in range(len(CLUSTERS)): 
         CHS[i].append(calinski_harabasz_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'eps':eps, 'CHS':CHS[i]})
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'CHS':CHS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['eps'], frame['CHS'], marker='o')
-    plt.xlabel('Epsilon')
+    plt.plot(frame['Cluster'], frame['CHS'], marker='o')
+    plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
     plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
-    plt.savefig('CHS_' + models_names[i] + '_dbscan.png')
+    plt.savefig('CHS_' + models_names[i] + '_spectral.png')
 
-    frame.to_csv(r'CHS_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'CHS_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
 from sklearn.metrics import davies_bouldin_score 
@@ -295,18 +295,18 @@ from sklearn.metrics import davies_bouldin_score
 DBS = []
 for i in range(len(models)): 
     DBS.append([])
-    for j in range(len(eps)): 
+    for j in range(len(CLUSTERS)): 
         DBS[i].append(davies_bouldin_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'eps':eps, 'DBS':DBS[i]})
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'DBS':DBS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['eps'], frame['DBS'], marker='o')
-    plt.xlabel('Epsilon')
+    plt.plot(frame['Cluster'], frame['DBS'], marker='o')
+    plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
     plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
-    plt.savefig('DBS_' + models_names[i] + '_dbscan.png')
+    plt.savefig('DBS_' + models_names[i] + '_spectral.png')
 
-    frame.to_csv(r'DBS_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'DBS_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
 # from sklearn.metrics import pairwise_distances 
@@ -316,18 +316,18 @@ for i in range(len(models)):
 # dist = pairwise_distances(vectors)
 # for i in range(len(models)): 
     # COP.append([])
-    # for j in range(len(eps)): 
+    # for j in range(len(CLUSTERS)): 
         # COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
     
-    # frame = pd.DataFrame({'eps':eps, 'COP':COP[i]})
+    # frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP[i]})
     # plt.figure(figsize=(12,6))
-    # plt.plot(frame['eps'], frame['COP'], marker='o')
-    # plt.xlabel('Epsilon')
+    # plt.plot(frame['Cluster'], frame['COP'], marker='o')
+    # plt.xlabel('Number of clusters')
     # plt.ylabel('COP')
     # plt.title('The COP index - ' + models_names[i])
-    # plt.savefig('COP_' + models_names[i] + '_dbscan.png')
+    # plt.savefig('COP_' + models_names[i] + '_spectral.png')
 
-    # frame.to_csv(r'COP_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
+    # frame.to_csv(r'COP_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
 # from s_dbw import S_Dbw
@@ -335,32 +335,31 @@ for i in range(len(models)):
 # SDbw = [] 
 # for i in range(len(models)): 
     # SDbw.append([])
-    # for j in range(len(eps)): 
+    # for j in range(len(CLUSTERS)): 
         # SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
     
-    # frame = pd.DataFrame({'eps':eps, 'SDbw':SDbw[i]})
+    # frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw[i]})
     # plt.figure(figsize=(12,6))
-    # plt.plot(frame['eps'], frame['SDbw'], marker='o')
-    # plt.xlabel('Epsilon')
+    # plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
+    # plt.xlabel('Number of clusters')
     # plt.ylabel('SDbw')
     # plt.title('The SDbw index - ' + models_names[i])
-    # plt.savefig('SDbw_' + models_names[i] + '_dbscan.png')
+    # plt.savefig('SDbw_' + models_names[i] + '_spectral.png')
 
-    # frame.to_csv(r'SDbw_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
+    # frame.to_csv(r'SDbw_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- make html
 from web import *
 
 for i in range(len(models)):
-    for j in range(len(eps)):
+    for j in range(len(CLUSTERS)):
         # make html section for every cluster
-        # section = [""]*int(float(eps[j]))
-        section = [""]*len(np.unique(clusterings[i][j]))
+        section = [""]*int(float(CLUSTERS[j]))
         for k in range(len(images)):
             section[clusterings[i][j][k]] += addimg(f"{path[k]}",f"cluster {clusterings[i][j][k]}",f"{path[k]}")
 
         # build the page
-        Nazov = f"<h1>algorithm: DBSCAN, model: " + models_names[i] + ", epsilon:" + str(eps[j]) + "<h1>\n"
+        Nazov = f"<h1>algorithm: Spectral, model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
         BODY = ""
         for k in range(len(section)):
             BODY += f"<h2>cluster {k}<h2>\n"
@@ -369,8 +368,8 @@ for i in range(len(models)):
         html = HTML.format(Nazov=Nazov,BODY=BODY,CSS=CSS)
 
         # save html
-        print("write: index_"+ models_names[i] +"_dbscan"+str(eps[j]).replace(".","")+".html")
-        with open("index_" + models_names[i] + "_dbscan"+str(eps[j]).replace(".","")+".html","w") as fd:
+        print("write: index_"+ models_names[i] +"_spectral"+str(CLUSTERS[j])+".html")
+        with open("index_" + models_names[i] + "_spectral"+str(CLUSTERS[j])+".html","w") as fd:
             fd.write(html)
 
 # ------------------------------------------------------------------------------------
