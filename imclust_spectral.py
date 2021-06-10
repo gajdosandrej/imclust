@@ -309,44 +309,44 @@ for i in range(len(models)):
     frame.to_csv(r'DBS_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
-# from sklearn.metrics import pairwise_distances 
-# from validclust import cop
+from sklearn.metrics import pairwise_distances 
+from validclust import cop
 
-# COP = [] 
-# dist = pairwise_distances(vectors)
-# for i in range(len(models)): 
-    # COP.append([])
-    # for j in range(len(CLUSTERS)): 
-        # COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
+COP = [] 
+dist = pairwise_distances(vectors)
+for i in range(len(models)): 
+    COP.append([])
+    for j in range(len(CLUSTERS)): 
+        COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
     
-    # frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP[i]})
-    # plt.figure(figsize=(12,6))
-    # plt.plot(frame['Cluster'], frame['COP'], marker='o')
-    # plt.xlabel('Number of clusters')
-    # plt.ylabel('COP')
-    # plt.title('The COP index - ' + models_names[i])
-    # plt.savefig('COP_' + models_names[i] + '_spectral.png')
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['Cluster'], frame['COP'], marker='o')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('COP')
+    plt.title('The COP index - ' + models_names[i])
+    plt.savefig('COP_' + models_names[i] + '_spectral.png')
 
-    # frame.to_csv(r'COP_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'COP_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
-# from s_dbw import S_Dbw
+from s_dbw import S_Dbw
 
-# SDbw = [] 
-# for i in range(len(models)): 
-    # SDbw.append([])
-    # for j in range(len(CLUSTERS)): 
-        # SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
+SDbw = [] 
+for i in range(len(models)): 
+    SDbw.append([])
+    for j in range(len(CLUSTERS)): 
+        SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
     
-    # frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw[i]})
-    # plt.figure(figsize=(12,6))
-    # plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
-    # plt.xlabel('Number of clusters')
-    # plt.ylabel('SDbw')
-    # plt.title('The SDbw index - ' + models_names[i])
-    # plt.savefig('SDbw_' + models_names[i] + '_spectral.png')
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('SDbw')
+    plt.title('The SDbw index - ' + models_names[i])
+    plt.savefig('SDbw_' + models_names[i] + '_spectral.png')
 
-    # frame.to_csv(r'SDbw_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'SDbw_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- make html
 from web import *
