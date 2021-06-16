@@ -284,9 +284,9 @@ for i in range(len(models)):
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
     plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
-    plt.savefig('CHS_' + models_names[i] + '_kmeans.png')
+    plt.savefig('CHS_' + models_names[i] + '_kmodes.png')
 
-    frame.to_csv(r'CHS_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'CHS_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
 from sklearn.metrics import davies_bouldin_score 
@@ -303,17 +303,17 @@ for i in range(len(models)):
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
     plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
-    plt.savefig('DBS_' + models_names[i] + '_kmeans.png')
+    plt.savefig('DBS_' + models_names[i] + '_kmodes.png')
 
-    frame.to_csv(r'DBS_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'DBS_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
 from sklearn.metrics import pairwise_distances 
 from validclust import cop
 
 COP = [] 
-dist = pairwise_distances(vectors)
 for i in range(len(models)): 
+    dist = pairwise_distances(vectors[i])
     COP.append([])
     for j in range(len(CLUSTERS)): 
         COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
@@ -324,9 +324,9 @@ for i in range(len(models)):
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
     plt.title('The COP index - ' + models_names[i])
-    plt.savefig('COP_' + models_names[i] + '_kmeans.png')
+    plt.savefig('COP_' + models_names[i] + '_kmodes.png')
 
-    frame.to_csv(r'COP_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'COP_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
 from s_dbw import S_Dbw
@@ -343,9 +343,9 @@ for i in range(len(models)):
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
     plt.title('The SDbw index - ' + models_names[i])
-    plt.savefig('SDbw_' + models_names[i] + '_kmeans.png')
+    plt.savefig('SDbw_' + models_names[i] + '_kmodes.png')
 
-    frame.to_csv(r'SDbw_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'SDbw_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- make html
 from web import *

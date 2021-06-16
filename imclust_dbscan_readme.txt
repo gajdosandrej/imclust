@@ -15,6 +15,7 @@ OUTPUTS:
 - The COP index (plot, exported values in text file); 
 - The SDbw index (plot, exported values in text file).      
 
-EXAMPLE: 
+EXAMPLES: 
+python imclust_dbscan.py -e 600,700 -m ResNet50,VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\
 python imclust_dbscan.py -e 600,700 -m DenseNet121,DenseNet169 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\ 
 

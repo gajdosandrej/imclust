@@ -313,8 +313,8 @@ from sklearn.metrics import pairwise_distances
 from validclust import cop
 
 COP = [] 
-dist = pairwise_distances(vectors)
 for i in range(len(models)): 
+    dist = pairwise_distances(vectors[i])
     COP.append([])
     for j in range(len(eps)): 
         COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
