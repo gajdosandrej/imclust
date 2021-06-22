@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_agglomerative.py - extended version of imclust.py (by A. Gajdos)   
+# imclust_kmedoids.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -8,13 +8,13 @@ import sys,os
 
 HELP = f"""
 NAME
-    imclust_agglomerative.py - image clustering demo
+    imclust_kmedoids.py - image clustering demo
 
 USAGE
-    imclust_agglomerative.py [OPTIONS] DIRECTORY...
+    imclust_kmedoids.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust_agglomerative.py will cluster images in
+    Image clusteuring demo imclust_kmedoids.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
@@ -25,7 +25,7 @@ OPTIONS
 
 VERSION
     imclust.py 0.1 (c) R.Jaksa 2021
-    imclust_agglomerative.py - extended version of imclust.py (by A. Gajdos) 
+    imclust_kmedoids.py - extended version of imclust.py (by A. Gajdos) 
 """
 
 import argparse
@@ -224,7 +224,7 @@ while i < len(path):
     i += 256
 
 # ----------------------------------------------------------------------- cluster them
-from sklearn.cluster import AgglomerativeClustering
+from sklearn_extra.cluster import KMedoids
 
 CLUSTERS = args.clusters 
 CLUSTERS = CLUSTERS.split(",")
@@ -233,9 +233,9 @@ clusterings = []
 for i in range(len(models)): 
     clusterings.append([])
     for j in range(len(CLUSTERS)): 
-        clustering = AgglomerativeClustering(n_clusters=int(float(CLUSTERS[j])))
-        # clustering.fit(vectors[i])
-        cl = clustering.fit_predict(vectors[i])
+        clustering = KMedoids(n_clusters=int(float(CLUSTERS[j])))
+        clustering.fit(vectors[i])
+        cl = clustering.predict(vectors[i])
         clusterings[i].append(cl)
         print(f"clusters: {cl}")
 
@@ -265,10 +265,10 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['MSC'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
-    plt.title('Agglomerative: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
-    plt.savefig('MSC_' + models_names[i] + '_agglomerative.png')
+    plt.title('KMedoids: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.savefig('MSC_' + models_names[i] + '_kmedoids.png')
 
-    frame.to_csv(r'MSC_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'MSC_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Calinski-Harabasz index (plot + file)
 from sklearn.metrics import calinski_harabasz_score 
@@ -284,10 +284,10 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['CHS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
-    plt.title('Agglomerative: Calinski-Harabasz Score (CHS) - ' + models_names[i])
-    plt.savefig('CHS_' + models_names[i] + '_agglomerative.png')
+    plt.title('KMedoids: Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.savefig('CHS_' + models_names[i] + '_kmedoids.png')
 
-    frame.to_csv(r'CHS_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'CHS_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
 from sklearn.metrics import davies_bouldin_score 
@@ -303,10 +303,10 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['DBS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
-    plt.title('Agglomerative: Davies-Bouldin Score (DBS) - ' + models_names[i])
-    plt.savefig('DBS_' + models_names[i] + '_agglomerative.png')
+    plt.title('KMedoids: Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.savefig('DBS_' + models_names[i] + '_kmedoids.png')
 
-    frame.to_csv(r'DBS_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'DBS_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
 from sklearn.metrics import pairwise_distances 
@@ -314,7 +314,7 @@ from validclust import cop
 
 COP = [] 
 for i in range(len(models)): 
-    dist = pairwise_distances(vectors[i])
+    dist = pairwise_distances(vectors[i]) 
     COP.append([])
     for j in range(len(CLUSTERS)): 
         COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
@@ -324,10 +324,10 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['COP'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
-    plt.title('Agglomerative: The COP index - ' + models_names[i])
-    plt.savefig('COP_' + models_names[i] + '_agglomerative.png')
+    plt.title('KMedoids: The COP index - ' + models_names[i])
+    plt.savefig('COP_' + models_names[i] + '_kmedoids.png')
 
-    frame.to_csv(r'COP_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'COP_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
 from s_dbw import S_Dbw
@@ -343,10 +343,40 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
-    plt.title('Agglomerative: The SDbw index - ' + models_names[i])
-    plt.savefig('SDbw_' + models_names[i] + '_agglomerative.png')
+    plt.title('KMedoids: The SDbw index - ' + models_names[i])
+    plt.savefig('SDbw_' + models_names[i] + '_kmedoids.png')
 
-    frame.to_csv(r'SDbw_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'SDbw_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- The TSP (plot + file)
+# from python_tsp.exact import solve_tsp_dynamic_programming 
+
+# TSP = [] 
+# for i in range(len(models)): 
+    # TSP.append([])
+    # for j in range(len(CLUSTERS)): 
+        # for k in range(int(float(CLUSTERS[j]))): 
+            # vectors2 = []
+            # tsp_temp = []
+            # for l in range(len(vectors[i])):
+                # if clusterings[i][j][l] == k:
+                    # # vectors2 = np.concatenate((vectors2, vectors[i][l])) 
+                    # vectors2.append(vectors[i][l])
+            # dist = pairwise_distances(vectors2) 
+            # permutation, distance = solve_tsp_dynamic_programming(dist)
+            # tsp_temp.append(distance)
+        # TSP[i].append(np.mean(tsp_temp))
+    
+    # frame = pd.DataFrame({'Cluster':CLUSTERS, 'TSP':TSP[i]})
+    # plt.figure(figsize=(12,6))
+    # plt.plot(frame['Cluster'], frame['TSP'], marker='o')
+    # plt.xlabel('Number of clusters')
+    # plt.ylabel('TSP')
+    # plt.title('KMedoids: The TSP - ' + models_names[i])
+    # plt.savefig('TSP_' + models_names[i] + '_kmedoids.png')
+
+    # frame.to_csv(r'TSP_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
+
 
 # -------------------------------------------------------------------------- make html
 from web import *
@@ -359,7 +389,7 @@ for i in range(len(models)):
             section[clusterings[i][j][k]] += addimg(f"{path[k]}",f"cluster {clusterings[i][j][k]}",f"{path[k]}")
 
         # build the page
-        Nazov = f"<h1>algorithm: Agglomerative, model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
+        Nazov = f"<h1>algorithm: K-medoids, model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
         BODY = ""
         for k in range(len(section)):
             BODY += f"<h2>cluster {k}<h2>\n"
@@ -368,8 +398,8 @@ for i in range(len(models)):
         html = HTML.format(Nazov=Nazov,BODY=BODY,CSS=CSS)
 
         # save html
-        print("write: index_"+ models_names[i] +"_agglomerative"+str(CLUSTERS[j])+".html")
-        with open("index_" + models_names[i] + "_agglomerative"+str(CLUSTERS[j])+".html","w") as fd:
+        print("write: index_"+ models_names[i] +"_kmedoids"+str(CLUSTERS[j])+".html")
+        with open("index_" + models_names[i] + "_kmedoids"+str(CLUSTERS[j])+".html","w") as fd:
             fd.write(html)
 
 # ------------------------------------------------------------------------------------

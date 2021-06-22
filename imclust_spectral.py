@@ -14,7 +14,7 @@ USAGE
     imclust_spectral.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust.py will cluster images in
+    Image clusteuring demo imclust_spectral.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
@@ -265,7 +265,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['MSC'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
-    plt.title('Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.title('Spectral: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
     plt.savefig('MSC_' + models_names[i] + '_spectral.png')
 
     frame.to_csv(r'MSC_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
@@ -284,7 +284,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['CHS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
-    plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.title('Spectral: Calinski-Harabasz Score (CHS) - ' + models_names[i])
     plt.savefig('CHS_' + models_names[i] + '_spectral.png')
 
     frame.to_csv(r'CHS_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
@@ -303,7 +303,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['DBS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
-    plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.title('Spectral: Davies-Bouldin Score (DBS) - ' + models_names[i])
     plt.savefig('DBS_' + models_names[i] + '_spectral.png')
 
     frame.to_csv(r'DBS_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
@@ -324,7 +324,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['COP'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
-    plt.title('The COP index - ' + models_names[i])
+    plt.title('Spectral: The COP index - ' + models_names[i])
     plt.savefig('COP_' + models_names[i] + '_spectral.png')
 
     frame.to_csv(r'COP_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')
@@ -343,7 +343,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
-    plt.title('The SDbw index - ' + models_names[i])
+    plt.title('Spectral: The SDbw index - ' + models_names[i])
     plt.savefig('SDbw_' + models_names[i] + '_spectral.png')
 
     frame.to_csv(r'SDbw_' + models_names[i] + '_spectral.txt', index=None, sep='\t', mode='a')

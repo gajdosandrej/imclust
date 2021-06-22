@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_kmeans.py - extended version of imclust.py (by A. Gajdos)   
+# imclust_kmodes.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -14,7 +14,7 @@ USAGE
     imclust_kmodes.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust.py will cluster images in
+    Image clusteuring demo imclust_kmodes.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
@@ -264,7 +264,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['MSC'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
-    plt.title('Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.title('KModes: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
     plt.savefig('MSC_' + models_names[i] + '_kmodes.png')
 
     frame.to_csv(r'MSC_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
@@ -283,7 +283,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['CHS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
-    plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.title('KModes: Calinski-Harabasz Score (CHS) - ' + models_names[i])
     plt.savefig('CHS_' + models_names[i] + '_kmodes.png')
 
     frame.to_csv(r'CHS_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
@@ -302,7 +302,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['DBS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
-    plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.title('KModes: Davies-Bouldin Score (DBS) - ' + models_names[i])
     plt.savefig('DBS_' + models_names[i] + '_kmodes.png')
 
     frame.to_csv(r'DBS_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
@@ -323,7 +323,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['COP'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
-    plt.title('The COP index - ' + models_names[i])
+    plt.title('KModes: The COP index - ' + models_names[i])
     plt.savefig('COP_' + models_names[i] + '_kmodes.png')
 
     frame.to_csv(r'COP_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')
@@ -342,7 +342,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
-    plt.title('The SDbw index - ' + models_names[i])
+    plt.title('KModes: The SDbw index - ' + models_names[i])
     plt.savefig('SDbw_' + models_names[i] + '_kmodes.png')
 
     frame.to_csv(r'SDbw_' + models_names[i] + '_kmodes.txt', index=None, sep='\t', mode='a')

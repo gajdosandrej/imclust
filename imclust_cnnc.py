@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -u # -*- python -*-
 # imclust.py (c) R.Jaksa 2021 
-# imclust_agglomerative.py - extended version of imclust.py (by A. Gajdos)   
+# imclust_cnnc.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
 
@@ -8,31 +8,30 @@ import sys,os
 
 HELP = f"""
 NAME
-    imclust_agglomerative.py - image clustering demo
+    imclust_cnnc.py - image clustering demo
 
 USAGE
-    imclust_agglomerative.py [OPTIONS] DIRECTORY...
+    imclust_cnnc.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust_agglomerative.py will cluster images in
+    Image clusteuring demo imclust_dbscan.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
     -h  This help. 
     -m  Models of NN to provide a numerical representations of images. 
     Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'. 
-    -c  Requested number of clusters.
+    -e  The maximum distance between two samples for one to be considered as in the neighborhood of the other.
 
 VERSION
     imclust.py 0.1 (c) R.Jaksa 2021
-    imclust_agglomerative.py - extended version of imclust.py (by A. Gajdos) 
+    imclust_dbscan.py - extended version of imclust.py (by A. Gajdos) 
 """
 
 import argparse
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("-h","--help",action="store_true")
-# parser.add_argument("-c","--clusters",type=int,default=10)
-parser.add_argument("-c","--clusters",type=str,default="10")
+parser.add_argument("-e","--eps",type=str,default="0.5")
 parser.add_argument("-m","--models",type=str,default="ResNet50")
 parser.add_argument("path",type=str,nargs='*') 
 args = parser.parse_args()
@@ -224,17 +223,18 @@ while i < len(path):
     i += 256
 
 # ----------------------------------------------------------------------- cluster them
-from sklearn.cluster import AgglomerativeClustering
+from sklearn_extra.cluster import CommonNNClustering 
 
-CLUSTERS = args.clusters 
-CLUSTERS = CLUSTERS.split(",")
+eps = args.eps
+eps = eps.split(",")
 clusterings = []
  
 for i in range(len(models)): 
     clusterings.append([])
-    for j in range(len(CLUSTERS)): 
-        clustering = AgglomerativeClustering(n_clusters=int(float(CLUSTERS[j])))
+    for j in range(len(eps)): 
+        clustering = CommonNNClustering(eps=float(eps[j]))
         # clustering.fit(vectors[i])
+        # cl = clustering.predict(vectors[i])
         cl = clustering.fit_predict(vectors[i])
         clusterings[i].append(cl)
         print(f"clusters: {cl}")
@@ -257,18 +257,18 @@ import matplotlib.pyplot as plt
 MSC = []
 for i in range(len(models)): 
     MSC.append([])
-    for j in range(len(CLUSTERS)): 
+    for j in range(len(eps)): 
         MSC[i].append(silhouette_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'MSC':MSC[i]})
+    frame = pd.DataFrame({'eps':eps, 'MSC':MSC[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['MSC'], marker='o')
-    plt.xlabel('Number of clusters')
+    plt.plot(frame['eps'], frame['MSC'], marker='o')
+    plt.xlabel('Epsilon')
     plt.ylabel('MSC')
-    plt.title('Agglomerative: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
-    plt.savefig('MSC_' + models_names[i] + '_agglomerative.png')
+    plt.title('CNNC: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.savefig('MSC_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'MSC_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'MSC_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Calinski-Harabasz index (plot + file)
 from sklearn.metrics import calinski_harabasz_score 
@@ -276,18 +276,18 @@ from sklearn.metrics import calinski_harabasz_score
 CHS = []
 for i in range(len(models)): 
     CHS.append([])
-    for j in range(len(CLUSTERS)): 
+    for j in range(len(eps)): 
         CHS[i].append(calinski_harabasz_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'CHS':CHS[i]})
+    frame = pd.DataFrame({'eps':eps, 'CHS':CHS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['CHS'], marker='o')
-    plt.xlabel('Number of clusters')
+    plt.plot(frame['eps'], frame['CHS'], marker='o')
+    plt.xlabel('Epsilon')
     plt.ylabel('CHS')
-    plt.title('Agglomerative: Calinski-Harabasz Score (CHS) - ' + models_names[i])
-    plt.savefig('CHS_' + models_names[i] + '_agglomerative.png')
+    plt.title('CNNC: Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.savefig('CHS_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'CHS_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'CHS_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
 from sklearn.metrics import davies_bouldin_score 
@@ -295,18 +295,18 @@ from sklearn.metrics import davies_bouldin_score
 DBS = []
 for i in range(len(models)): 
     DBS.append([])
-    for j in range(len(CLUSTERS)): 
+    for j in range(len(eps)): 
         DBS[i].append(davies_bouldin_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'DBS':DBS[i]})
+    frame = pd.DataFrame({'eps':eps, 'DBS':DBS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['DBS'], marker='o')
-    plt.xlabel('Number of clusters')
+    plt.plot(frame['eps'], frame['DBS'], marker='o')
+    plt.xlabel('Epsilon')
     plt.ylabel('DBS')
-    plt.title('Agglomerative: Davies-Bouldin Score (DBS) - ' + models_names[i])
-    plt.savefig('DBS_' + models_names[i] + '_agglomerative.png')
+    plt.title('CNNC: Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.savefig('DBS_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'DBS_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'DBS_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
 from sklearn.metrics import pairwise_distances 
@@ -316,18 +316,18 @@ COP = []
 for i in range(len(models)): 
     dist = pairwise_distances(vectors[i])
     COP.append([])
-    for j in range(len(CLUSTERS)): 
+    for j in range(len(eps)): 
         COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP[i]})
+    frame = pd.DataFrame({'eps':eps, 'COP':COP[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['COP'], marker='o')
-    plt.xlabel('Number of clusters')
+    plt.plot(frame['eps'], frame['COP'], marker='o')
+    plt.xlabel('Epsilon')
     plt.ylabel('COP')
-    plt.title('Agglomerative: The COP index - ' + models_names[i])
-    plt.savefig('COP_' + models_names[i] + '_agglomerative.png')
+    plt.title('CNNC: The COP index - ' + models_names[i])
+    plt.savefig('COP_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'COP_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'COP_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
 from s_dbw import S_Dbw
@@ -335,31 +335,32 @@ from s_dbw import S_Dbw
 SDbw = [] 
 for i in range(len(models)): 
     SDbw.append([])
-    for j in range(len(CLUSTERS)): 
+    for j in range(len(eps)): 
         SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw[i]})
+    frame = pd.DataFrame({'eps':eps, 'SDbw':SDbw[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
-    plt.xlabel('Number of clusters')
+    plt.plot(frame['eps'], frame['SDbw'], marker='o')
+    plt.xlabel('Epsilon')
     plt.ylabel('SDbw')
-    plt.title('Agglomerative: The SDbw index - ' + models_names[i])
-    plt.savefig('SDbw_' + models_names[i] + '_agglomerative.png')
+    plt.title('CNNC: The SDbw index - ' + models_names[i])
+    plt.savefig('SDbw_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'SDbw_' + models_names[i] + '_agglomerative.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'SDbw_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- make html
 from web import *
 
 for i in range(len(models)):
-    for j in range(len(CLUSTERS)):
+    for j in range(len(eps)):
         # make html section for every cluster
-        section = [""]*int(float(CLUSTERS[j]))
+        # section = [""]*int(float(eps[j]))
+        section = [""]*len(np.unique(clusterings[i][j]))
         for k in range(len(images)):
             section[clusterings[i][j][k]] += addimg(f"{path[k]}",f"cluster {clusterings[i][j][k]}",f"{path[k]}")
 
         # build the page
-        Nazov = f"<h1>algorithm: Agglomerative, model: " + models_names[i] + ", number of clusters:" + str(CLUSTERS[j]) + "<h1>\n"
+        Nazov = f"<h1>algorithm: CNNC, model: " + models_names[i] + ", epsilon:" + str(eps[j]) + "<h1>\n"
         BODY = ""
         for k in range(len(section)):
             BODY += f"<h2>cluster {k}<h2>\n"
@@ -368,8 +369,8 @@ for i in range(len(models)):
         html = HTML.format(Nazov=Nazov,BODY=BODY,CSS=CSS)
 
         # save html
-        print("write: index_"+ models_names[i] +"_agglomerative"+str(CLUSTERS[j])+".html")
-        with open("index_" + models_names[i] + "_agglomerative"+str(CLUSTERS[j])+".html","w") as fd:
+        print("write: index_"+ models_names[i] +"_cnnc"+str(eps[j]).replace(".","")+".html")
+        with open("index_" + models_names[i] + "_cnnc"+str(eps[j]).replace(".","")+".html","w") as fd:
             fd.write(html)
 
 # ------------------------------------------------------------------------------------

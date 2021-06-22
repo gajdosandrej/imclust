@@ -14,7 +14,7 @@ USAGE
     imclust_dbscan.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust.py will cluster images in
+    Image clusteuring demo imclust_dbscan.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
@@ -284,7 +284,7 @@ for i in range(len(models)):
     plt.plot(frame['eps'], frame['CHS'], marker='o')
     plt.xlabel('Epsilon')
     plt.ylabel('CHS')
-    plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.title('DBSCAN: Calinski-Harabasz Score (CHS) - ' + models_names[i])
     plt.savefig('CHS_' + models_names[i] + '_dbscan.png')
 
     frame.to_csv(r'CHS_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
@@ -303,7 +303,7 @@ for i in range(len(models)):
     plt.plot(frame['eps'], frame['DBS'], marker='o')
     plt.xlabel('Epsilon')
     plt.ylabel('DBS')
-    plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.title('DBSCAN: Davies-Bouldin Score (DBS) - ' + models_names[i])
     plt.savefig('DBS_' + models_names[i] + '_dbscan.png')
 
     frame.to_csv(r'DBS_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
@@ -324,7 +324,7 @@ for i in range(len(models)):
     plt.plot(frame['eps'], frame['COP'], marker='o')
     plt.xlabel('Epsilon')
     plt.ylabel('COP')
-    plt.title('The COP index - ' + models_names[i])
+    plt.title('DBSCAN: The COP index - ' + models_names[i])
     plt.savefig('COP_' + models_names[i] + '_dbscan.png')
 
     frame.to_csv(r'COP_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
@@ -343,7 +343,7 @@ for i in range(len(models)):
     plt.plot(frame['eps'], frame['SDbw'], marker='o')
     plt.xlabel('Epsilon')
     plt.ylabel('SDbw')
-    plt.title('The SDbw index - ' + models_names[i])
+    plt.title('DBSCAN: The SDbw index - ' + models_names[i])
     plt.savefig('SDbw_' + models_names[i] + '_dbscan.png')
 
     frame.to_csv(r'SDbw_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')

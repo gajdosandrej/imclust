@@ -14,7 +14,7 @@ USAGE
     imclust_kmeans.py [OPTIONS] DIRECTORY...
 
 DESCRIPTION
-    Image clusteuring demo imclust.py will cluster images in
+    Image clusteuring demo imclust_kmeans.py will cluster images in
     the DIRECTORY, and produce a html visualization of results.
 
 OPTIONS
@@ -265,7 +265,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['MSC'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
-    plt.title('Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.title('KMeans: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
     plt.savefig('MSC_' + models_names[i] + '_kmeans.png')
 
     frame.to_csv(r'MSC_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
@@ -284,7 +284,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['CHS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
-    plt.title('Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.title('KMeans: Calinski-Harabasz Score (CHS) - ' + models_names[i])
     plt.savefig('CHS_' + models_names[i] + '_kmeans.png')
 
     frame.to_csv(r'CHS_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
@@ -303,7 +303,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['DBS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
-    plt.title('Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.title('KMeans: Davies-Bouldin Score (DBS) - ' + models_names[i])
     plt.savefig('DBS_' + models_names[i] + '_kmeans.png')
 
     frame.to_csv(r'DBS_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
@@ -324,7 +324,7 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['COP'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
-    plt.title('The COP index - ' + models_names[i])
+    plt.title('KMeans: The COP index - ' + models_names[i])
     plt.savefig('COP_' + models_names[i] + '_kmeans.png')
 
     frame.to_csv(r'COP_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
@@ -343,10 +343,40 @@ for i in range(len(models)):
     plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
-    plt.title('The SDbw index - ' + models_names[i])
+    plt.title('KMeans: The SDbw index - ' + models_names[i])
     plt.savefig('SDbw_' + models_names[i] + '_kmeans.png')
 
     frame.to_csv(r'SDbw_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+
+# -------------------------------------------------------------------------- The TSP (plot + file)
+from python_tsp.exact import solve_tsp_dynamic_programming 
+
+TSP = [] 
+for i in range(len(models)): 
+    TSP.append([])
+    for j in range(len(CLUSTERS)): 
+        for k in range(int(float(CLUSTERS[j]))): 
+            vectors2 = []
+            tsp_temp = []
+            for l in range(len(vectors[i])):
+                if clusterings[i][j][l] == k:
+                    # vectors2 = np.concatenate((vectors2, vectors[i][l])) 
+                    vectors2.append(vectors[i][l])
+            dist = pairwise_distances(vectors2) 
+            permutation, distance = solve_tsp_dynamic_programming(dist)
+            tsp_temp.append(distance)
+        TSP[i].append(np.mean(tsp_temp))
+    
+    frame = pd.DataFrame({'Cluster':CLUSTERS, 'TSP':TSP[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['Cluster'], frame['TSP'], marker='o')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('TSP')
+    plt.title('KMeans: The TSP - ' + models_names[i])
+    plt.savefig('TSP_' + models_names[i] + '_kmeans.png')
+
+    frame.to_csv(r'TSP_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
+
 
 # -------------------------------------------------------------------------- make html
 from web import *
