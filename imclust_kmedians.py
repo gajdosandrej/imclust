@@ -3,6 +3,9 @@
 # imclust_kmedians.py - extended version of imclust.py (by A. Gajdos)   
 
 import sys,os
+import time
+
+start_time = time.time()
 
 # -------------------------- parse command-line arguments: dirname and no. of clusters
 
@@ -204,43 +207,52 @@ print(f"...")
 from imageio import imread
 from skimage.transform import resize
 import numpy as np 
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA 
+from multiprocessing.pool import ThreadPool
 np.warnings.filterwarnings("ignore",category=np.VisibleDeprecationWarning)
+
+def loadresize(path):
+  try:
+    image = imread(str(path))
+  except:
+    print(f"\nmalformed image: {path}\n")
+    return
+  image = resize(image,SIZE,anti_aliasing=True)
+  return image
 
 SIZE = (224,224,3)
 # pca = PCA(n_components=256)
 pca_list = []
 # vectors = np.empty([0,256],dtype=np.float32) 
 vectors = [np.empty([0,256],dtype=np.float32)]*len(models)
-images = np.empty([0,224,224,3],dtype=np.float32)
+# images = np.empty([0,224,224,3],dtype=np.float32)
+n_imgs = 0
 i=0
 while i < len(path): 
     i2 = i + 256 
-    # images = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]]) 
-    imgs = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]])
-    # print(f"images shape: {images.shape}")
-    # images = np.asarray([resize(image,SIZE,0) for image in images]) 
-    imgs = np.asarray([resize(image,SIZE,0) for image in imgs])
-    # print(f"images: {len(images)}")
-    # print(f"imgs length: {len(imgs)}")
-    # print(f"single image shape: {images[0].shape}") 
-    # print(f"imgs shape: {imgs.shape}") 
-    images = np.concatenate((images, imgs),0)
+    ## imgs = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]])
+    ## imgs = np.asarray([resize(image,SIZE,0) for image in imgs])
+    ## images = np.concatenate((images, imgs),0) 
+    imgs = np.empty([0,SIZE[0],SIZE[1],SIZE[2]],dtype=np.float32)
+    pool = ThreadPool(os.cpu_count())
+    results = []
+    for p in path[i:i2]:
+        results.append(pool.apply_async(loadresize,args=(p,)))
+    pool.close()
+    pool.join()
+    imgs = np.array([r.get() for r in results]) 
+    n_imgs += len(imgs)
 
 # ------------------------------------------------------------- get embeddings vectors
     
     for j in range(len(models)): 
-        # vector = models_dict[j].predict(imgs)
         vector = models_list[j].predict(imgs)
-        # print(f"model output shape: {vector[0].shape}")
         vector = vector.reshape(vector.shape[0],-1)
-        # print(f"reshaped to 1D: {vector[0].shape}") 
         if i == 0: 
             pca = PCA(n_components=256)
             pca.fit(vector) 
             pca_list.append(pca)
         vector = pca_list[j].transform(vector)
-        # print(f"vector transformed by pca: {vector[0].shape}")
         vectors[j] = np.concatenate((vectors[j], vector),0)
         
     i += 256
@@ -446,7 +458,7 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)):
         # make html section for every cluster
         section = [""]*int(float(CLUSTERS[j]))
-        for k in range(len(images)):
+        for k in range(n_imgs):
             section[clusterings[i][j][k]] += addimg(f"{path[k]}",f"cluster {clusterings[i][j][k]}",f"{path[k]}")
 
         # build the page
@@ -470,5 +482,7 @@ print(f"==================================")
 print(f"=============================")
 print(f"=Code executed successfully.=")
 print(f"=============================")
+
+print("--- %s seconds ---" % (time.time() - start_time)) 
 
 # ------------------------------------------------------------------------------------
