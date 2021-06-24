@@ -490,9 +490,9 @@ for i in range(len(models)):
 
     frame.to_csv(r'SDbw_wo_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
 
-print(f"===============================")
-print(f"=Indices (metrics) calculated.=")
-print(f"===============================")
+print(f"====================================================")
+print(f"=Indices (metrics) calculated and written to files.=")
+print(f"====================================================")
 
 # -------------------------------------------------------------------------- make html 
 print(f"===================================")

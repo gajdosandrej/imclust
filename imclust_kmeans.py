@@ -297,9 +297,9 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)): 
         MSC[i].append(silhouette_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'MSC':MSC[i]})
+    frame = pd.DataFrame({'Clusters':CLUSTERS, 'MSC':MSC[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['MSC'], marker='o')
+    plt.plot(frame['Clusters'], frame['MSC'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('MSC')
     plt.title('KMeans: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
@@ -316,9 +316,9 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)): 
         CHS[i].append(calinski_harabasz_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'CHS':CHS[i]})
+    frame = pd.DataFrame({'Clusters':CLUSTERS, 'CHS':CHS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['CHS'], marker='o')
+    plt.plot(frame['Clusters'], frame['CHS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('CHS')
     plt.title('KMeans: Calinski-Harabasz Score (CHS) - ' + models_names[i])
@@ -335,9 +335,9 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)): 
         DBS[i].append(davies_bouldin_score(vectors[i],clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'DBS':DBS[i]})
+    frame = pd.DataFrame({'Clusters':CLUSTERS, 'DBS':DBS[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['DBS'], marker='o')
+    plt.plot(frame['Clusters'], frame['DBS'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('DBS')
     plt.title('KMeans: Davies-Bouldin Score (DBS) - ' + models_names[i])
@@ -356,9 +356,9 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)): 
         COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'COP':COP[i]})
+    frame = pd.DataFrame({'Clusters':CLUSTERS, 'COP':COP[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['COP'], marker='o')
+    plt.plot(frame['Clusters'], frame['COP'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('COP')
     plt.title('KMeans: The COP index - ' + models_names[i])
@@ -375,9 +375,9 @@ for i in range(len(models)):
     for j in range(len(CLUSTERS)): 
         SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
     
-    frame = pd.DataFrame({'Cluster':CLUSTERS, 'SDbw':SDbw[i]})
+    frame = pd.DataFrame({'Clusters':CLUSTERS, 'SDbw':SDbw[i]})
     plt.figure(figsize=(12,6))
-    plt.plot(frame['Cluster'], frame['SDbw'], marker='o')
+    plt.plot(frame['Clusters'], frame['SDbw'], marker='o')
     plt.xlabel('Number of clusters')
     plt.ylabel('SDbw')
     plt.title('KMeans: The SDbw index - ' + models_names[i])
@@ -414,9 +414,9 @@ for i in range(len(models)):
 
     # frame.to_csv(r'TSP_' + models_names[i] + '_kmeans.txt', index=None, sep='\t', mode='a')
 
-print(f"===============================")
-print(f"=Indices (metrics) calculated.=")
-print(f"===============================")
+print(f"====================================================")
+print(f"=Indices (metrics) calculated and written to files.=")
+print(f"====================================================")
 
 # -------------------------------------------------------------------------- make html 
 print(f"===================================")
