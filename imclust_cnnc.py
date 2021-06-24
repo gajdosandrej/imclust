@@ -40,7 +40,12 @@ if args.help or len(args.path)==0:
     print(HELP)
     exit(0)
 
-# ---------------------------------------------------------- get image names from dirs
+# ---------------------------------------------------------- get image names from dirs 
+print(f"====================================")
+print(f"=Loading names of images from dirs.=")
+print(f"====================================")
+print(f"...")
+
 from glob import glob
 import random
 
@@ -49,9 +54,17 @@ for dir in args.path:
   path += glob(dir+"/**/*.png",recursive=True)
   path += glob(dir+"/**/*.jpg",recursive=True)
 random.shuffle(path)
-# for p in path: print(p)
+
+print(f"=========================")
+print(f"=Names of images loaded.=")
+print(f"=========================")
 
 # ------------------------------------------------------------------------- load model
+print(f"====================")
+print(f"=Loading NN models.=")
+print(f"====================") 
+print(f"...")
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 
@@ -177,7 +190,16 @@ if 'Xception' in models:
     models_names.append('Xception')
     models_list.append(model)
 
-# ------------------------------------------------------------------------ load images
+print(f"===================")
+print(f"=NN models loaded.=")
+print(f"===================")
+
+# ------------------------------------------------------------------------ load images 
+print(f"=======================================")
+print(f"=Loading images and embedding vectors.=")
+print(f"=======================================")
+print(f"...")
+
 from imageio import imread
 from skimage.transform import resize
 import numpy as np 
@@ -195,13 +217,13 @@ while i < len(path):
     i2 = i + 256 
     # images = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]]) 
     imgs = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]])
-    print(f"images shape: {images.shape}")
+    # print(f"images shape: {images.shape}")
     # images = np.asarray([resize(image,SIZE,0) for image in images]) 
     imgs = np.asarray([resize(image,SIZE,0) for image in imgs])
     # print(f"images: {len(images)}")
-    print(f"imgs length: {len(imgs)}")
+    # print(f"imgs length: {len(imgs)}")
     # print(f"single image shape: {images[0].shape}") 
-    print(f"imgs shape: {imgs.shape}") 
+    # print(f"imgs shape: {imgs.shape}") 
     images = np.concatenate((images, imgs),0)
 
 # ------------------------------------------------------------- get embeddings vectors
@@ -209,20 +231,29 @@ while i < len(path):
     for j in range(len(models)): 
         # vector = models_dict[j].predict(imgs)
         vector = models_list[j].predict(imgs)
-        print(f"model output shape: {vector[0].shape}")
+        # print(f"model output shape: {vector[0].shape}")
         vector = vector.reshape(vector.shape[0],-1)
-        print(f"reshaped to 1D: {vector[0].shape}") 
+        # print(f"reshaped to 1D: {vector[0].shape}") 
         if i == 0: 
             pca = PCA(n_components=256)
             pca.fit(vector) 
             pca_list.append(pca)
         vector = pca_list[j].transform(vector)
-        print(f"vector transformed by pca: {vector[0].shape}")
+        # print(f"vector transformed by pca: {vector[0].shape}")
         vectors[j] = np.concatenate((vectors[j], vector),0)
         
     i += 256
 
-# ----------------------------------------------------------------------- cluster them
+print(f"======================================")
+print(f"=Images and embedding vectors loaded.=")
+print(f"======================================")
+
+# ----------------------------------------------------------------------- cluster them 
+print(f"==================")
+print(f"=CNNC clustering.=")
+print(f"==================") 
+print(f"...")
+
 from sklearn_extra.cluster import CommonNNClustering 
 
 eps = args.eps
@@ -237,7 +268,11 @@ for i in range(len(models)):
         # cl = clustering.predict(vectors[i])
         cl = clustering.fit_predict(vectors[i])
         clusterings[i].append(cl)
-        print(f"clusters: {cl}")
+        # print(f"clusters: {cl}")
+
+print(f"=========================")
+print(f"=CNNC clustering - DONE.=")
+print(f"=========================")
 
 # ------------------------------------------------ copy images according their cluster
 
@@ -247,6 +282,25 @@ for i in range(len(models)):
 #   print(f"cp {path[i]} output/cluster{cluster[i]}")
 #   shutil.copy2(f"{path[i]}",f"output/cluster{cluster[i]}")
 
+# -------------------------------------------------------------------------- excluding outliers 
+vectors_wo = [] 
+clusterings_wo = [] 
+for i in range(len(models)): 
+    vectors_wo.append([]) 
+    clusterings_wo.append([])
+    for j in range(len(eps)): 
+        vectors_wo[i].append([]) 
+        clusterings_wo[i].append([])
+        for k in range(len(clusterings[i][j])): 
+            if clusterings[i][j][k] != -1: 
+                vectors_wo[i][j].append(vectors[i][k])
+                clusterings_wo[i][j].append(clusterings[i][j][k])
+
+print(f"================================")
+print(f"=Calculating indices (metrics).=")
+print(f"================================") 
+print(f"...")
+
 # -------------------------------------------------------------------------- mean silhouette coefficient (plot + file)
 from sklearn.metrics import silhouette_score
 import pandas as pd 
@@ -254,11 +308,14 @@ import matplotlib.pyplot as plt
 
 # models_names = list(slovnik.keys())
 
-MSC = []
+MSC = [] 
+MSC_wo = []
 for i in range(len(models)): 
-    MSC.append([])
+    MSC.append([]) 
+    MSC_wo.append([])
     for j in range(len(eps)): 
-        MSC[i].append(silhouette_score(vectors[i],clusterings[i][j]))
+        MSC[i].append(silhouette_score(vectors[i],clusterings[i][j])) 
+        MSC_wo[i].append(silhouette_score(vectors_wo[i][j],clusterings_wo[i][j]))
     
     frame = pd.DataFrame({'eps':eps, 'MSC':MSC[i]})
     plt.figure(figsize=(12,6))
@@ -268,16 +325,51 @@ for i in range(len(models)):
     plt.title('CNNC: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
     plt.savefig('MSC_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'MSC_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'MSC_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a') 
+    
+    frame = pd.DataFrame({'eps':eps, 'MSC_wo':MSC_wo[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['eps'], frame['MSC_wo'], marker='o')
+    plt.xlabel('Epsilon')
+    plt.ylabel('MSC_wo')
+    plt.title('CNNC_wo: Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    plt.savefig('MSC_wo_' + models_names[i] + '_cnnc.png')
+
+    frame.to_csv(r'MSC_wo_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    
+# MSC_wo = []  
+# for i in range(len(models)): 
+    # MSC_wo.append([])
+    # for j in range(len(eps)): 
+        # vectors_wo = []
+        # clusterings_wo = [] 
+        # for k in range(len(vectors[i])): 
+            # if clusterings[i][j][k] != -1: 
+                # vectors_wo.append(vectors[i][k])
+                # clusterings_wo.append(clusterings[i][j][k])
+        # MSC_wo[i].append(silhouette_score(vectors_wo,clusterings_wo))
+    
+    # frame = pd.DataFrame({'eps':eps, 'MSC_wo':MSC_wo[i]})
+    # plt.figure(figsize=(12,6))
+    # plt.plot(frame['eps'], frame['MSC_wo'], marker='o')
+    # plt.xlabel('Epsilon')
+    # plt.ylabel('MSC_wo')
+    # plt.title('Mean Silhouette Coefficient (MSC) - ' + models_names[i])
+    # plt.savefig('MSC_wo_' + models_names[i] + '_dbscan.png')
+
+    # frame.to_csv(r'MSC_wo_' + models_names[i] + '_dbscan.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- Calinski-Harabasz index (plot + file)
 from sklearn.metrics import calinski_harabasz_score 
 
-CHS = []
+CHS = [] 
+CHS_wo = []
 for i in range(len(models)): 
-    CHS.append([])
+    CHS.append([]) 
+    CHS_wo.append([])
     for j in range(len(eps)): 
         CHS[i].append(calinski_harabasz_score(vectors[i],clusterings[i][j]))
+        CHS_wo[i].append(calinski_harabasz_score(vectors_wo[i][j],clusterings_wo[i][j]))
     
     frame = pd.DataFrame({'eps':eps, 'CHS':CHS[i]})
     plt.figure(figsize=(12,6))
@@ -287,16 +379,29 @@ for i in range(len(models)):
     plt.title('CNNC: Calinski-Harabasz Score (CHS) - ' + models_names[i])
     plt.savefig('CHS_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'CHS_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'CHS_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a') 
+    
+    frame = pd.DataFrame({'eps':eps, 'CHS_wo':CHS_wo[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['eps'], frame['CHS_wo'], marker='o')
+    plt.xlabel('Epsilon')
+    plt.ylabel('CHS_wo')
+    plt.title('CNNC_wo: Calinski-Harabasz Score (CHS) - ' + models_names[i])
+    plt.savefig('CHS_wo_' + models_names[i] + '_cnnc.png')
 
+    frame.to_csv(r'CHS_wo_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    
 # -------------------------------------------------------------------------- Davies-Bouldin index (plot + file)
 from sklearn.metrics import davies_bouldin_score 
 
-DBS = []
+DBS = [] 
+DBS_wo = []
 for i in range(len(models)): 
     DBS.append([])
+    DBS_wo.append([])
     for j in range(len(eps)): 
-        DBS[i].append(davies_bouldin_score(vectors[i],clusterings[i][j]))
+        DBS[i].append(davies_bouldin_score(vectors[i],clusterings[i][j])) 
+        DBS_wo[i].append(davies_bouldin_score(vectors_wo[i][j],clusterings_wo[i][j])) 
     
     frame = pd.DataFrame({'eps':eps, 'DBS':DBS[i]})
     plt.figure(figsize=(12,6))
@@ -307,17 +412,31 @@ for i in range(len(models)):
     plt.savefig('DBS_' + models_names[i] + '_cnnc.png')
 
     frame.to_csv(r'DBS_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    
+    frame = pd.DataFrame({'eps':eps, 'DBS_wo':DBS_wo[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['eps'], frame['DBS_wo'], marker='o')
+    plt.xlabel('Epsilon')
+    plt.ylabel('DBS_wo')
+    plt.title('CNNC_wo: Davies-Bouldin Score (DBS) - ' + models_names[i])
+    plt.savefig('DBS_wo_' + models_names[i] + '_cnnc.png')
+
+    frame.to_csv(r'DBS_wo_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The COP index (plot + file) 
 from sklearn.metrics import pairwise_distances 
 from validclust import cop
 
-COP = [] 
+COP = []
+COP_wo = [] 
 for i in range(len(models)): 
-    dist = pairwise_distances(vectors[i])
+    dist = pairwise_distances(vectors[i]) 
     COP.append([])
+    COP_wo.append([])
     for j in range(len(eps)): 
-        COP[i].append(cop(vectors[i], dist, clusterings[i][j]))
+        dist_wo = pairwise_distances(vectors_wo[i][j])
+        COP[i].append(cop(vectors[i], dist, clusterings[i][j])) 
+        COP_wo[i].append(cop(np.array(vectors_wo[i][j]), dist_wo, np.array(clusterings_wo[i][j])))
     
     frame = pd.DataFrame({'eps':eps, 'COP':COP[i]})
     plt.figure(figsize=(12,6))
@@ -328,15 +447,28 @@ for i in range(len(models)):
     plt.savefig('COP_' + models_names[i] + '_cnnc.png')
 
     frame.to_csv(r'COP_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    
+    frame = pd.DataFrame({'eps':eps, 'COP_wo':COP_wo[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['eps'], frame['COP_wo'], marker='o')
+    plt.xlabel('Epsilon')
+    plt.ylabel('COP_wo')
+    plt.title('CNNC_wo: The COP index - ' + models_names[i])
+    plt.savefig('COP_wo_' + models_names[i] + '_cnnc.png')
+
+    frame.to_csv(r'COP_wo_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
 
 # -------------------------------------------------------------------------- The SDbw index (plot + file)
 from s_dbw import S_Dbw
 
-SDbw = [] 
+SDbw = []
+SDbw_wo = [] 
 for i in range(len(models)): 
     SDbw.append([])
+    SDbw_wo.append([])
     for j in range(len(eps)): 
         SDbw[i].append(S_Dbw(vectors[i], clusterings[i][j], centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
+        SDbw_wo[i].append(S_Dbw(np.array(vectors_wo[i][j]), np.array(clusterings_wo[i][j]), centers_id=None, method='Tong', alg_noise='bind', centr='mean', nearest_centr=True, metric='euclidean'))
     
     frame = pd.DataFrame({'eps':eps, 'SDbw':SDbw[i]})
     plt.figure(figsize=(12,6))
@@ -346,9 +478,28 @@ for i in range(len(models)):
     plt.title('CNNC: The SDbw index - ' + models_names[i])
     plt.savefig('SDbw_' + models_names[i] + '_cnnc.png')
 
-    frame.to_csv(r'SDbw_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+    frame.to_csv(r'SDbw_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a') 
+    
+    frame = pd.DataFrame({'eps':eps, 'SDbw_wo':SDbw_wo[i]})
+    plt.figure(figsize=(12,6))
+    plt.plot(frame['eps'], frame['SDbw_wo'], marker='o')
+    plt.xlabel('Epsilon')
+    plt.ylabel('SDbw_wo')
+    plt.title('CNNC_wo: The SDbw index - ' + models_names[i])
+    plt.savefig('SDbw_wo_' + models_names[i] + '_cnnc.png')
 
-# -------------------------------------------------------------------------- make html
+    frame.to_csv(r'SDbw_wo_' + models_names[i] + '_cnnc.txt', index=None, sep='\t', mode='a')
+
+print(f"===============================")
+print(f"=Indices (metrics) calculated.=")
+print(f"===============================")
+
+# -------------------------------------------------------------------------- make html 
+print(f"===================================")
+print(f"=Creating html page with clusters.=")
+print(f"===================================")
+print(f"...")
+
 from web import *
 
 for i in range(len(models)):
@@ -369,8 +520,12 @@ for i in range(len(models)):
         html = HTML.format(Nazov=Nazov,BODY=BODY,CSS=CSS)
 
         # save html
-        print("write: index_"+ models_names[i] +"_cnnc"+str(eps[j]).replace(".","")+".html")
+        # print("write: index_"+ models_names[i] +"_cnnc"+str(eps[j]).replace(".","")+".html")
         with open("index_" + models_names[i] + "_cnnc"+str(eps[j]).replace(".","")+".html","w") as fd:
             fd.write(html)
+
+print(f"==================================")
+print(f"=Html page with clusters created.=")
+print(f"==================================")
 
 # ------------------------------------------------------------------------------------

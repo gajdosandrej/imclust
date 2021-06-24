@@ -41,7 +41,12 @@ if args.help or len(args.path)==0:
     print(HELP)
     exit(0)
 
-# ---------------------------------------------------------- get image names from dirs
+# ---------------------------------------------------------- get image names from dirs 
+print(f"====================================")
+print(f"=Loading names of images from dirs.=")
+print(f"====================================")
+print(f"...")
+
 from glob import glob
 import random
 
@@ -50,9 +55,17 @@ for dir in args.path:
   path += glob(dir+"/**/*.png",recursive=True)
   path += glob(dir+"/**/*.jpg",recursive=True)
 random.shuffle(path)
-# for p in path: print(p)
+
+print(f"=========================")
+print(f"=Names of images loaded.=")
+print(f"=========================")
 
 # ------------------------------------------------------------------------- load model
+print(f"====================")
+print(f"=Loading NN models.=")
+print(f"====================") 
+print(f"...")
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 
@@ -178,7 +191,16 @@ if 'Xception' in models:
     models_names.append('Xception')
     models_list.append(model)
 
-# ------------------------------------------------------------------------ load images
+print(f"===================")
+print(f"=NN models loaded.=")
+print(f"===================")
+
+# ------------------------------------------------------------------------ load images 
+print(f"=======================================")
+print(f"=Loading images and embedding vectors.=")
+print(f"=======================================")
+print(f"...")
+
 from imageio import imread
 from skimage.transform import resize
 import numpy as np 
@@ -196,13 +218,13 @@ while i < len(path):
     i2 = i + 256 
     # images = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]]) 
     imgs = np.array([imread(str(p)).astype(np.float32) for p in path[i:i2]])
-    print(f"images shape: {images.shape}")
+    # print(f"images shape: {images.shape}")
     # images = np.asarray([resize(image,SIZE,0) for image in images]) 
     imgs = np.asarray([resize(image,SIZE,0) for image in imgs])
     # print(f"images: {len(images)}")
-    print(f"imgs length: {len(imgs)}")
+    # print(f"imgs length: {len(imgs)}")
     # print(f"single image shape: {images[0].shape}") 
-    print(f"imgs shape: {imgs.shape}") 
+    # print(f"imgs shape: {imgs.shape}") 
     images = np.concatenate((images, imgs),0)
 
 # ------------------------------------------------------------- get embeddings vectors
@@ -210,20 +232,29 @@ while i < len(path):
     for j in range(len(models)): 
         # vector = models_dict[j].predict(imgs)
         vector = models_list[j].predict(imgs)
-        print(f"model output shape: {vector[0].shape}")
+        # print(f"model output shape: {vector[0].shape}")
         vector = vector.reshape(vector.shape[0],-1)
-        print(f"reshaped to 1D: {vector[0].shape}") 
+        # print(f"reshaped to 1D: {vector[0].shape}") 
         if i == 0: 
             pca = PCA(n_components=256)
             pca.fit(vector) 
             pca_list.append(pca)
         vector = pca_list[j].transform(vector)
-        print(f"vector transformed by pca: {vector[0].shape}")
+        # print(f"vector transformed by pca: {vector[0].shape}")
         vectors[j] = np.concatenate((vectors[j], vector),0)
         
     i += 256
 
+print(f"======================================")
+print(f"=Images and embedding vectors loaded.=")
+print(f"======================================")
+
 # ----------------------------------------------------------------------- cluster them
+print(f"=======================")
+print(f"=K-medoids clustering.=")
+print(f"=======================") 
+print(f"...")
+
 from sklearn_extra.cluster import KMedoids
 
 CLUSTERS = args.clusters 
@@ -237,7 +268,11 @@ for i in range(len(models)):
         clustering.fit(vectors[i])
         cl = clustering.predict(vectors[i])
         clusterings[i].append(cl)
-        print(f"clusters: {cl}")
+        # print(f"clusters: {cl}")
+
+print(f"==============================")
+print(f"=K-medoids clustering - DONE.=")
+print(f"==============================")
 
 # ------------------------------------------------ copy images according their cluster
 
@@ -246,6 +281,11 @@ for i in range(len(models)):
 #   if not os.path.exists(f"output/cluster{cluster[i]}"): os.makedirs(f"output/cluster{cluster[i]}")
 #   print(f"cp {path[i]} output/cluster{cluster[i]}")
 #   shutil.copy2(f"{path[i]}",f"output/cluster{cluster[i]}")
+
+print(f"================================")
+print(f"=Calculating indices (metrics).=")
+print(f"================================") 
+print(f"...")
 
 # -------------------------------------------------------------------------- mean silhouette coefficient (plot + file)
 from sklearn.metrics import silhouette_score
@@ -377,8 +417,16 @@ for i in range(len(models)):
 
     # frame.to_csv(r'TSP_' + models_names[i] + '_kmedoids.txt', index=None, sep='\t', mode='a')
 
+print(f"===============================")
+print(f"=Indices (metrics) calculated.=")
+print(f"===============================")
 
-# -------------------------------------------------------------------------- make html
+# -------------------------------------------------------------------------- make html 
+print(f"===================================")
+print(f"=Creating html page with clusters.=")
+print(f"===================================")
+print(f"...")
+
 from web import *
 
 for i in range(len(models)):
@@ -398,8 +446,12 @@ for i in range(len(models)):
         html = HTML.format(Nazov=Nazov,BODY=BODY,CSS=CSS)
 
         # save html
-        print("write: index_"+ models_names[i] +"_kmedoids"+str(CLUSTERS[j])+".html")
+        # print("write: index_"+ models_names[i] +"_kmedoids"+str(CLUSTERS[j])+".html")
         with open("index_" + models_names[i] + "_kmedoids"+str(CLUSTERS[j])+".html","w") as fd:
             fd.write(html)
+
+print(f"==================================")
+print(f"=Html page with clusters created.=")
+print(f"==================================")
 
 # ------------------------------------------------------------------------------------
