@@ -3,8 +3,11 @@ imclust.py (c) R.Jaksa 2021
 imclust_kmeans.py - extended version of imclust.py (by A. Gajdos) 
 
 INPUTS: 
--m  Models of NN to provide a numerical representations of images. Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'; 
--c  Requested number of clusters; 
+-h help; 
+-m  models of NN to provide a numerical representations of images. Accepted inputs: see documentation https://www.tensorflow.org/api_docs/python/tf/keras/applications - section 'functions'; 
+-c  requested number of clusters; 
+-pca number of Principal components; 
+- dn dataset name;  
 path to images. 
 
 OUTPUTS: 
@@ -12,9 +15,9 @@ OUTPUTS:
 - mean silhouette coefficient (plot, exported values in text file); 
 - Calinski-Harabasz index (plot, exported values in text file); 
 - Davies-Bouldin index (plot, exported values in text file); 
-- The COP index (plot, exported values in text file); 
-- The SDbw index (plot, exported values in text file).      
+- the COP index (plot, exported values in text file); 
+- the SDbw index (plot, exported values in text file).      
 
 EXAMPLES: 
-python imclust_kmeans.py -c 5,10 -m ResNet50,VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\
-python imclust_kmeans.py -c 5,10,15 -m DenseNet121,InceptionV3,ResNet50,VGG16 d:\Data\Matsuko_UPJS\alpha82_pc\partial_inpainting_on_sample\
+python imclust_kmeans_v1.py -c 5,10 -m ResNet50,VGG16 -dn test_celeba d:\Data\Matsuko_UPJS\CLUST-data\test_celeba\
+python imclust_kmeans_v1.py -c 5,10,15 -m DenseNet121,InceptionV3,ResNet50,VGG16 -dn test_celeba d:\Data\Matsuko_UPJS\CLUST-data\test_celeba\
