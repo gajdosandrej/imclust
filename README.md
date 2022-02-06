@@ -1,2 +1,2 @@
 # imclust
-Python scripts for image clustering. 
+Python scripts for images clustering. 
